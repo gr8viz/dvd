@@ -11,10 +11,10 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      background: black; /* background behind the square */
+      background: black; /* outside the square */
     }
     canvas {
-      background: #111; /* background color of the square */
+      background: #222; /* default square background */
     }
   </style>
 </head>
@@ -29,22 +29,28 @@
 
     let x = 100;
     let y = 100;
-    const speed = 2;
+    const speed = 2.5;
     let dx = speed;
     let dy = speed;
 
     logo.onload = () => {
-      const logoWidth = 120;
-      const logoHeight = 60;
+      // scale logo relative to canvas size
+      const logoWidth = canvas.width * 0.25;  // 25% of canvas width
+      const logoHeight = canvas.height * 0.15; // 15% of canvas height
 
       function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // draw background each frame
+        ctx.fillStyle = "#222"; // change this hex to any color you want
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        // draw logo
         ctx.drawImage(logo, x, y, logoWidth, logoHeight);
 
+        // move logo
         x += dx;
         y += dy;
 
+        // bounce on edges
         if (x + logoWidth > canvas.width || x < 0) dx *= -1;
         if (y + logoHeight > canvas.height || y < 0) dy *= -1;
 
