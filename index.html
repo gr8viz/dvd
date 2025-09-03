@@ -11,15 +11,15 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      background: black; /* outside the square */
+      background: black; /* outside area */
     }
     canvas {
-      background: #222; /* default square background */
+      background: #222; /* canvas background */
     }
   </style>
 </head>
 <body>
-  <canvas id="dvdCanvas" width="600" height="600"></canvas>
+  <canvas id="dvdCanvas" width="900" height="900"></canvas>
   <script>
     const canvas = document.getElementById('dvdCanvas');
     const ctx = canvas.getContext('2d');
@@ -33,17 +33,16 @@
     let dx = speed;
     let dy = speed;
 
-    logo.onload = () => {
-      // scale logo relative to canvas size
-      const logoWidth = canvas.width * 0.25;  // 25% of canvas width
-      const logoHeight = canvas.height * 0.15; // 15% of canvas height
+    const logoWidth = 350;
+    const logoHeight = 140;
 
+    logo.onload = () => {
       function animate() {
-        // draw background each frame
-        ctx.fillStyle = "#222"; // change this hex to any color you want
+        // draw background
+        ctx.fillStyle = "#222";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // draw logo
+        // draw logo with fixed size
         ctx.drawImage(logo, x, y, logoWidth, logoHeight);
 
         // move logo
