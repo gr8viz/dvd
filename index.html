@@ -14,7 +14,7 @@
       background: black; /* outside the square */
     }
     canvas {
-      background: #222; /* square background */
+      background: #222; /* default square background */
     }
   </style>
 </head>
@@ -34,16 +34,17 @@
     let dy = speed;
 
     logo.onload = () => {
-      const logoWidth = logo.width;
-      const logoHeight = logo.height;
+      // scale logo relative to canvas size
+      const logoWidth = canvas.width * 0.25;  // 25% of canvas width
+      const logoHeight = canvas.height * 0.15; // 15% of canvas height
 
       function animate() {
-        // draw square background
-        ctx.fillStyle = "#222";
+        // draw background each frame
+        ctx.fillStyle = "#222"; // change this hex to any color you want
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // draw logo at natural size
-        ctx.drawImage(logo, x, y);
+        // draw logo
+        ctx.drawImage(logo, x, y, logoWidth, logoHeight);
 
         // move logo
         x += dx;
