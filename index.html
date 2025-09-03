@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DVD Loading Screen with Custom Logo</title>
+  <title>DVD Loading Screen with ZYPHER Logo</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
   <style>
     body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: black; }
@@ -14,13 +14,13 @@
 let x, y, vx, vy, logoWidth, logoHeight, logoColor, logoImg;
 
 function preload() {
-  logoImg = loadImage('logo.png'); // Load your custom logo image
+  logoImg = loadImage('ZYPHER.png'); // Load the ZYPHER logo image
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  logoWidth = 100; // Adjust to your logo's width
-  logoHeight = 60; // Adjust to your logo's height
+  logoWidth = 300; // Match your logo's width
+  logoHeight = 100; // Match your logo's height
   x = width / 2; // Start at center
   y = height / 2;
   vx = 5; // Initial velocity
