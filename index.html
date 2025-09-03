@@ -1,64 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bouncing Logo</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: black; /* outside the square */
-    }
-    canvas {
-      background: #222; /* default square background */
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bouncing Logo (DVD style)</title>
+<style>
+  html, body { height: 100%; margin: 0; background:#000; }
+  canvas { display:block; width:100%; height:100%; }
+  /* Optional: show FPS/speed instructions */
+  #hint { position:fixed; left:12px; bottom:10px; color:#aaa; font:12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+</style>
 </head>
 <body>
-  <canvas id="dvdCanvas" width="600" height="600"></canvas>
-  <script>
-    const canvas = document.getElementById('dvdCanvas');
-    const ctx = canvas.getContext('2d');
+<canvas id="c"></canvas>
+<div id="hint">Space: pause • +/- : speed • R: reset position</div>
 
-    const logo = new Image();
-    logo.src = 'logo.png';
+<script>
+(async function () {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
 
-    let x = 100;
-    let y = 100;
-    const speed = 2.5;
-    let dx = speed;
-    let dy = speed;
+  // Retina scaling
+  function fit() {
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width  = Math.floor(innerWidth  * dpr);
+    canvas.height = Math.floor(innerHeight * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0); // draw in CSS pixels
+  }
+  addEventListener('resize', fit, {passive:true}); fit();
 
-    logo.onload = () => {
-      // scale logo relative to canvas size
-      const logoWidth = canvas.width * 0.25;  // 25% of canvas width
-      const logoHeight = canvas.height * 0.15; // 15% of canvas height
+  // Try to load a file literally named "logo" with common extensions
+  async function loadLogo() {
+    const exts = ['png','svg','jpg','jpeg','webp'];
+    for (const ext of exts) {
+      try {
+        const img = await new Promise((res, rej) => {
+          const i = new Image();
+          i.src = `logo.${ext}`;
+          i.onload = () => res(i);
+          i.onerror = rej;
+        });
+        return img;
+      } catch (_) { /* try next */ }
+    }
+    throw new Error('Could not find logo.(png|svg|jpg|jpeg|webp) in this folder.');
+  }
 
-      function animate() {
-        // draw background each frame
-        ctx.fillStyle = "#222"; // change this hex to any color you want
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const img = await loadLogo();
 
-        // draw logo
-        ctx.drawImage(logo, x, y, logoWidth, logoHeight);
+  // Logo size (in CSS pixels). Adjust scale for your art.
+  const baseWidth = 260;            // starting width
+  const aspect = img.width / img.height || 2.5;
+  let logoW = baseWidth, logoH = baseWidth / aspect;
 
-        // move logo
-        x += dx;
-        y += dy;
+  // Position and velocity
+  let x = Math.random() * (innerWidth  - logoW);
+  let y = Math.random() * (innerHeight - logoH);
+  let vx = (Math.random() < 0.5 ? -1 : 1) * 180;  // px/sec
+  let vy = (Math.random() < 0.5 ? -1 : 1) * 140;  // px/sec
 
-        // bounce on edges
-        if (x + logoWidth > canvas.width || x < 0) dx *= -1;
-        if (y + logoHeight > canvas.height || y < 0) dy *= -1;
+  let paused = false;
+  let last = performance.now();
 
-        requestAnimationFrame(animate);
-      }
+  // Random color on edge hit (classic DVD vibe)
+  let bg = '#000000';
+  function randomColor() {
+    const h = Math.floor(Math.random()*360);
+    bg = `hsl(${h} 80% 8%)`;
+    document.body.style.background = bg;
+  }
 
-      animate();
-    };
-  </script>
+  // Controls
+  addEventListener('keydown', e => {
+    if (e.key === ' ') paused = !paused;
+    if (e.key === '+' || e.key === '=') { vx*=1.1; vy*=1.1; }
+    if (e.key === '-' || e.key === '_') { vx*=0.9; vy*=0.9; }
+    if (e.key.toLowerCase() === 'r') { x = 20; y = 20; randomColor(); }
+  });
+
+  function drawFrame(dt) {
+    // clear
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+
+    // move
+    x += vx * dt;
+    y += vy * dt;
+
+    let hit = false;
+    if (x <= 0)              { x = 0;                       vx *= -1; hit = true; }
+    if (x + logoW >= innerWidth)  { x = innerWidth - logoW;  vx *= -1; hit = true; }
+    if (y <= 0)              { y = 0;                       vy *= -1; hit = true; }
+    if (y + logoH >= innerHeight) { y = innerHeight - logoH; vy *= -1; hit = true; }
+    if (hit) randomColor();
+
+    // optional soft shadow for pop
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = 24;
+    ctx.drawImage(img, x, y, logoW, logoH);
+    ctx.restore();
+  }
+
+  function loop(t) {
+    const dt = Math.min(0.05, (t - last) / 1000);
+    last = t;
+    if (!paused) drawFrame(dt);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
 </body>
 </html>
