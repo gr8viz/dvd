@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DVD Loading Screen with Custom Logo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+  <style>
+    body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: black; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<script>
+let x, y, vx, vy, logoWidth, logoHeight, logoColor, logoImg;
+
+function preload() {
+  logoImg = loadImage('logo.png'); // Load your custom logo image
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  logoWidth = 100; // Adjust to your logo's width
+  logoHeight = 60; // Adjust to your logo's height
+  x = width / 2; // Start at center
+  y = height / 2;
+  vx = 5; // Initial velocity
+  vy = 3;
+  logoColor = color(255, 255, 255); // Initial color: white (no tint)
+}
+
+function draw() {
+  background(0); // Black background
+  tint(logoColor); // Apply color tint to logo
+  drawLogo(x, y); // Draw the logo
+  noTint(); // Reset tint for other drawings
+  updatePosition(); // Update position and handle bounces
+}
+
+function drawLogo(x, y) {
+  image(logoImg, x, y, logoWidth, logoHeight); // Draw the logo image
+}
+
+function updatePosition() {
+  x += vx;
+  y += vy;
+
+  // Check for boundary collisions
+  let hitCorner = false;
+  if (x <= 0 || x + logoWidth >= width) {
+    vx = -vx; // Reverse x velocity
+    x = constrain(x, 0, width - logoWidth); // Keep within bounds
+    // Check if it’s a corner
+    if (y <= 0 || y + logoHeight >= height) {
+      hitCorner = true;
+    }
+  }
+  if (y <= 0 || y + logoHeight >= height) {
+    vy = -vy; // Reverse y velocity
+    y = constrain(y, 0, height - logoHeight);
+    // Check if it’s a corner (in case x didn’t trigger it)
+    if (x <= 0 || x + logoWidth >= width) {
+      hitCorner = true;
+    }
+  }
+
+  // Change color on corner hit
+  if (hitCorner) {
+    logoColor = color(random(255), random(255), random(255));
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  x = constrain(x, 0, width - logoWidth);
+  y = constrain(y, 0, height - logoHeight);
+}
+</script>
+</body>
+</html>
